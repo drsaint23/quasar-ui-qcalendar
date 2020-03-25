@@ -1,466 +1,562 @@
 // Quasar
-import { QBtn } from 'quasar'
+import { QBtn } from "quasar";
 
 // Directives
-import Resize from '../directives/resize.js'
+import Resize from "../directives/resize.js";
 
 // Mixins
-import CalendarIntervals from '../mixins/calendar-intervals.js'
+import CalendarIntervals from "../mixins/calendar-intervals.js";
 
 // Util
-import { convertToUnit } from '../utils/helpers.js'
+import { convertToUnit } from "../utils/helpers.js";
 
 /* @vue/component */
 export default {
-  name: 'QCalendarDaily',
+  name: "QCalendarDaily",
 
-  mixins: [
-    CalendarIntervals
-  ],
+  mixins: [CalendarIntervals],
 
   directives: { Resize },
 
-  data () {
+  data() {
     return {
       scrollWidth: 0
-    }
+    };
   },
 
   computed: {
-    computedWidth () {
-      return 100 / this.days.length
+    computedWidth() {
+      return 100 / this.days.length;
     }
   },
 
-  mounted () {
-    this.init()
+  mounted() {
+    this.init();
   },
 
   watch: {
-    noScroll (val) {
+    noScroll(val) {
       if (val === true) {
-        this.scrollWidth = 0
+        this.scrollWidth = 0;
       } else {
-        this.$nextTick(this.onResize)
+        this.$nextTick(this.onResize);
       }
     }
   },
 
   methods: {
-    init () {
-      this.$nextTick(this.onResize)
+    init() {
+      this.$nextTick(this.onResize);
     },
 
-    onResize () {
-      this.scrollWidth = this.getScrollWidth()
+    onResize() {
+      this.scrollWidth = this.getScrollWidth();
     },
 
-    getScrollWidth () {
-      const area = this.$refs.scrollArea
-      const pane = this.$refs.pane
+    getScrollWidth() {
+      const area = this.$refs.scrollArea;
+      const pane = this.$refs.pane;
 
-      return area && pane ? (area.offsetWidth - pane.offsetWidth) : 0
+      return area && pane ? area.offsetWidth - pane.offsetWidth : 0;
     },
 
-    __renderHead (h) {
-      return h('div', {
-        staticClass: 'q-calendar-daily__head',
-        style: {
-          marginRight: this.scrollWidth + 'px'
-        }
-      }, [
-        this.__renderHeadIntervals(h),
-        ...this.__renderHeadDays(h)
-      ])
+    __renderHead(h) {
+      return h(
+        "div",
+        {
+          staticClass: "q-calendar-daily__head",
+          style: {
+            marginRight: this.scrollWidth + "px"
+          }
+        },
+        [this.__renderHeadIntervals(h), ...this.__renderHeadDays(h)]
+      );
     },
 
-    __renderHeadIntervals (h) {
-      const intervalsHeader = this.$scopedSlots['intervals-header']
+    __renderHeadIntervals(h) {
+      const intervalsHeader = this.$scopedSlots["intervals-header"];
 
-      let colors = new Map(), color, backgroundColor
-      let updateColors = this.useDefaultTheme
+      let colors = new Map(),
+        color,
+        backgroundColor;
+      let updateColors = this.useDefaultTheme;
       if (this.enableTheme === true) {
-        color = 'colorIntervalHeader'
-        backgroundColor = 'backgroundIntervalHeader'
-        colors = this.getThemeColors([color, backgroundColor])
-        updateColors = this.setBothColors
+        color = "colorIntervalHeader";
+        backgroundColor = "backgroundIntervalHeader";
+        colors = this.getThemeColors([color, backgroundColor]);
+        updateColors = this.setBothColors;
       }
 
-      return h('div', updateColors(colors.get(color), colors.get(backgroundColor), {
-        staticClass: 'q-calendar-daily__intervals-head q-calendar-daily__intervals-head--text'
-      }), [
-        intervalsHeader && intervalsHeader(this.days)
-      ])
+      return h(
+        "div",
+        updateColors(colors.get(color), colors.get(backgroundColor), {
+          staticClass:
+            "q-calendar-daily__intervals-head q-calendar-daily__intervals-head--text"
+        }),
+        [intervalsHeader && intervalsHeader(this.days)]
+      );
     },
 
-    __renderHeadDays (h) {
-      if (this.days.length === 1 && this.columnCount !== void 0 && parseInt(this.columnCount, 10) > 0) {
+    __renderHeadDays(h) {
+      if (
+        this.days.length === 1 &&
+        this.columnCount !== void 0 &&
+        parseInt(this.columnCount, 10) > 0
+      ) {
         // return [...new Array(parseInt(this.columnCount, 10))]
         return Array.apply(null, new Array(parseInt(this.columnCount, 10)))
           .map((_, i) => i + parseInt(this.columnIndexStart, 10))
-          .map((idx) => this.__renderHeadDay(h, this.days[0], idx))
+          .map(idx => this.__renderHeadDay(h, this.days[0], idx));
       } else {
-        return this.days.map((day) => this.__renderHeadDay(h, day))
+        return this.days.map(day => this.__renderHeadDay(h, day));
       }
     },
 
-    __renderHeadDay (h, day, idx) {
-      const slot = this.$scopedSlots['day-header']
-      const scope = this.getScopeForSlot(day, idx)
-      const width = this.computedWidth
-      let dragOver
+    __renderHeadDay(h, day, idx) {
+      const slot = this.$scopedSlots["day-header"];
+      const scope = this.getScopeForSlot(day, idx);
+      const width = this.computedWidth;
+      let dragOver;
 
-      let colors = new Map(), color, backgroundColor
-      let updateColors = this.useDefaultTheme
+      let colors = new Map(),
+        color,
+        backgroundColor;
+      let updateColors = this.useDefaultTheme;
       if (this.enableTheme === true) {
         if (day.past === true) {
-          color = 'colorHeaderPast'
-          backgroundColor = 'backgroundHeaderPast'
+          color = "colorHeaderPast";
+          backgroundColor = "backgroundHeaderPast";
         } else if (day.current === true) {
-          color = 'colorHeaderCurrent'
-          backgroundColor = 'backgroundHeaderCurrent'
+          color = "colorHeaderCurrent";
+          backgroundColor = "backgroundHeaderCurrent";
         } else if (day.future === true) {
-          color = 'colorHeaderFuture'
-          backgroundColor = 'backgroundHeaderFuture'
+          color = "colorHeaderFuture";
+          backgroundColor = "backgroundHeaderFuture";
         }
-        colors = this.getThemeColors([color, backgroundColor])
-        updateColors = this.setBothColors
+        colors = this.getThemeColors([color, backgroundColor]);
+        updateColors = this.setBothColors;
       }
 
-      return h('div', updateColors(colors.get(color), colors.get(backgroundColor), {
-        key: day.date + (idx !== void 0 ? `-${idx}` : ''),
-        staticClass: 'q-calendar-daily__head-day',
-        class: {
-          ...this.getRelativeClasses(day),
-          'q-calendar-daily__head-day--droppable': dragOver
-        },
-        style: {
-          maxWidth: width + '%'
-        },
-        domProps: {
-          ondragover: (e) => {
-            if (this.dragOverFunc !== void 0) {
-              dragOver = this.dragOverFunc(e, day, 'day', idx)
+      return h(
+        "div",
+        updateColors(colors.get(color), colors.get(backgroundColor), {
+          key: day.date + (idx !== void 0 ? `-${idx}` : ""),
+          staticClass: "q-calendar-daily__head-day",
+          class: {
+            ...this.getRelativeClasses(day),
+            "q-calendar-daily__head-day--droppable": dragOver
+          },
+          style: {
+            maxWidth: width + "%"
+          },
+          domProps: {
+            ondragover: e => {
+              if (this.dragOverFunc !== void 0) {
+                dragOver = this.dragOverFunc(e, day, "day", idx);
+              }
+            },
+            ondrop: e => {
+              if (this.dropFunc !== void 0) {
+                this.dropFunc(e, day, "day", idx);
+              }
             }
           },
-          ondrop: (e) => {
-            if (this.dropFunc !== void 0) {
-              this.dropFunc(e, day, 'day', idx)
-            }
-          }
-        },
-        on: this.getDefaultMouseEventHandlers(':day', _event => {
-          return scope
-        })
-      }), [
-        this.columnHeaderBefore === true && this.__renderColumnHeaderBefore(h, day, idx),
-        this.noDefaultHeaderText !== true && this.__renderHeadWeekday(h, day),
-        this.noDefaultHeaderBtn !== true && this.__renderHeadDayBtn(h, day),
-        slot && slot(scope),
-        this.columnHeaderAfter === true && this.__renderColumnHeaderAfter(h, day, idx)
-      ])
+          on: this.getDefaultMouseEventHandlers(":day", _event => {
+            return scope;
+          })
+        }),
+        [
+          this.columnHeaderBefore === true &&
+            this.__renderColumnHeaderBefore(h, day, idx),
+          this.noDefaultHeaderText !== true && this.__renderHeadWeekday(h, day),
+          this.noDefaultHeaderBtn !== true && this.__renderHeadDayBtn(h, day),
+          slot && slot(scope),
+          this.columnHeaderAfter === true &&
+            this.__renderColumnHeaderAfter(h, day, idx)
+        ]
+      );
     },
 
-    __renderHeadWeekday (h, day) {
-      const slot = this.$scopedSlots['day-header-label']
-      const scope = this.getScopeForSlot(day)
-      const colorCurrent = day.current === true ? this.color : void 0
+    __renderHeadWeekday(h, day) {
+      const slot = this.$scopedSlots["day-header-label"];
+      const scope = this.getScopeForSlot(day);
+      const colorCurrent = day.current === true ? this.color : void 0;
 
-      let colors = new Map(), color, backgroundColor
-      let updateColors = this.useDefaultTheme
+      let colors = new Map(),
+        color,
+        backgroundColor;
+      let updateColors = this.useDefaultTheme;
       if (this.enableTheme === true) {
         if (day.past === true) {
-          color = 'colorDayLabelPast'
-          backgroundColor = 'backgroundDayLabelPast'
+          color = "colorDayLabelPast";
+          backgroundColor = "backgroundDayLabelPast";
         } else if (day.current === true) {
-          color = 'colorDayLabelCurrent'
-          backgroundColor = 'backgroundDayLabelCurrent'
+          color = "colorDayLabelCurrent";
+          backgroundColor = "backgroundDayLabelCurrent";
         } else if (day.future === true) {
-          color = 'colorDayLabelFuture'
-          backgroundColor = 'backgroundDayLabelFuture'
+          color = "colorDayLabelFuture";
+          backgroundColor = "backgroundDayLabelFuture";
         }
-        colors = this.getThemeColors([color, backgroundColor])
-        updateColors = this.setBothColors
+        colors = this.getThemeColors([color, backgroundColor]);
+        updateColors = this.setBothColors;
       }
 
-      return h('div', updateColors(colorCurrent !== void 0 ? colorCurrent : colors.get(color), colors.get(backgroundColor), {
-        staticClass: 'ellipsis q-calendar-daily__head-weekday'
-      }), [
-        (slot && slot(scope)) || this.__renderHeadDayLabel(h, day, this.shortWeekdayLabel)
-      ])
-    },
-
-    __renderHeadDayLabel (h, day, label) {
-      return h('span', {
-        staticClass: 'ellipsis'
-      }, this.weekdayFormatter(day, label))
-    },
-
-    __renderHeadDayBtn (h, day) {
-      const colorCurrent = day.current === true ? this.color : void 0
-      const activeDate = this.value === day.date
-
-      let colors = new Map(), color, backgroundColor
-      let updateColors = this.useDefaultTheme
-      if (this.enableTheme === true) {
-        if (day.past === true) {
-          color = 'colorDayLabelPast'
-          backgroundColor = 'backgroundDayLabelPast'
-        } else if (day.current === true) {
-          color = 'colorDayLabelCurrent'
-          backgroundColor = 'backgroundDayLabelCurrent'
-        } else if (day.future === true) {
-          color = 'colorDayLabelFuture'
-          backgroundColor = 'backgroundDayLabelFuture'
-        }
-        colors = this.getThemeColors([color, backgroundColor])
-        updateColors = this.setBothColors
-      }
-
-      return h(QBtn, updateColors(colorCurrent !== void 0 ? colorCurrent : colors.get(color), colors.get(backgroundColor), {
-        staticClass: 'q-calendar-daily__head-day-label',
-        class: [
+      return h(
+        "div",
+        updateColors(
+          colorCurrent !== void 0 ? colorCurrent : colors.get(color),
+          colors.get(backgroundColor),
           {
-            'q-active-date': this.noActiveDate !== true && activeDate
+            staticClass: "ellipsis q-calendar-daily__head-weekday"
           }
-        ],
-        style: {
-          color: day.current === true ? colorCurrent : void 0
+        ),
+        [
+          (slot && slot(scope)) ||
+            this.__renderHeadDayLabel(h, day, this.shortWeekdayLabel)
+        ]
+      );
+    },
+
+    __renderHeadDayLabel(h, day, label) {
+      return h(
+        "span",
+        {
+          staticClass: "ellipsis"
         },
-        props: {
-          unelevated: true,
-          round: true,
-          dense: true,
-          noCaps: true,
-          outline: day.current === true,
-          disable: day.disabled
+        this.weekdayFormatter(day, label)
+      );
+    },
+
+    __renderHeadDayBtn(h, day) {
+      const colorCurrent = day.current === true ? this.color : void 0;
+      const activeDate = this.value === day.date;
+
+      let colors = new Map(),
+        color,
+        backgroundColor;
+      let updateColors = this.useDefaultTheme;
+      if (this.enableTheme === true) {
+        if (day.past === true) {
+          color = "colorDayLabelPast";
+          backgroundColor = "backgroundDayLabelPast";
+        } else if (day.current === true) {
+          color = "colorDayLabelCurrent";
+          backgroundColor = "backgroundDayLabelCurrent";
+        } else if (day.future === true) {
+          color = "colorDayLabelFuture";
+          backgroundColor = "backgroundDayLabelFuture";
+        }
+        colors = this.getThemeColors([color, backgroundColor]);
+        updateColors = this.setBothColors;
+      }
+
+      return h(
+        QBtn,
+        updateColors(
+          colorCurrent !== void 0 ? colorCurrent : colors.get(color),
+          colors.get(backgroundColor),
+          {
+            staticClass: "q-calendar-daily__head-day-label",
+            class: [
+              {
+                "q-active-date": this.noActiveDate !== true && activeDate
+              }
+            ],
+            style: {
+              color: day.current === true ? colorCurrent : void 0
+            },
+            props: {
+              unelevated: true,
+              round: true,
+              dense: true,
+              noCaps: true,
+              outline: day.current === true,
+              disable: day.disabled
+            },
+            on: this.getMouseEventHandlers(
+              {
+                "click:date": { event: "click", stop: true },
+                "contextmenu:date": {
+                  event: "contextmenu",
+                  stop: true,
+                  prevent: true,
+                  result: false
+                }
+              },
+              _event => day
+            )
+          }
+        ),
+        this.dayFormatter(day, false)
+      );
+    },
+
+    __renderColumnHeaderBefore(h, day, idx) {
+      const slot = this.$scopedSlots["column-header-before"];
+      const scope = { ...day };
+      scope.index = idx;
+      return h(
+        "div",
+        {
+          staticClass: "q-calendar-daily__column-header--before"
         },
-        on: this.getMouseEventHandlers({
-          'click:date': { event: 'click', stop: true },
-          'contextmenu:date': { event: 'contextmenu', stop: true, prevent: true, result: false }
-        }, _event => day)
-      }), this.dayFormatter(day, false))
+        [slot && slot(scope)]
+      );
     },
 
-    __renderColumnHeaderBefore (h, day, idx) {
-      const slot = this.$scopedSlots['column-header-before']
-      const scope = { ...day }
-      scope.index = idx
-      return h('div', {
-        staticClass: 'q-calendar-daily__column-header--before'
-      }, [
-        slot && slot(scope)
-      ])
+    __renderColumnHeaderAfter(h, day, idx) {
+      const slot = this.$scopedSlots["column-header-after"];
+      const scope = { ...day };
+      scope.index = idx;
+      return h(
+        "div",
+        {
+          staticClass: "q-calendar-daily__column-header--after"
+        },
+        [slot && slot(scope)]
+      );
     },
 
-    __renderColumnHeaderAfter (h, day, idx) {
-      const slot = this.$scopedSlots['column-header-after']
-      const scope = { ...day }
-      scope.index = idx
-      return h('div', {
-        staticClass: 'q-calendar-daily__column-header--after'
-      }, [
-        slot && slot(scope)
-      ])
+    __renderBody(h) {
+      return h(
+        "div",
+        {
+          staticClass: "q-calendar-daily__body"
+        },
+        [this.__renderScrollArea(h)]
+      );
     },
 
-    __renderBody (h) {
-      return h('div', {
-        staticClass: 'q-calendar-daily__body'
-      }, [
-        this.__renderScrollArea(h)
-      ])
-    },
-
-    __renderScrollArea (h) {
+    __renderScrollArea(h) {
       if (this.noScroll !== void 0 && this.noScroll === true) {
-        return this.__renderPane(h)
+        return this.__renderPane(h);
       } else {
-        return h('div', {
-          ref: 'scrollArea',
-          staticClass: 'q-calendar-daily__scroll-area'
-        }, [
-          this.__renderPane(h)
-        ])
+        return h(
+          "div",
+          {
+            ref: "scrollArea",
+            staticClass: "q-calendar-daily__scroll-area"
+          },
+          [this.__renderPane(h)]
+        );
       }
     },
 
-    __renderPane (h) {
-      return h('div', {
-        ref: 'pane',
-        staticClass: 'q-calendar-daily__pane',
-        style: {
-          height: convertToUnit(this.bodyHeight)
-        }
-      }, [
-        this.__renderDayContainer(h)
-      ])
+    __renderPane(h) {
+      return h(
+        "div",
+        {
+          ref: "pane",
+          staticClass: "q-calendar-daily__pane",
+          style: {
+            height: convertToUnit(this.bodyHeight)
+          }
+        },
+        [this.__renderDayContainer(h)]
+      );
     },
 
-    __renderDayContainer (h) {
-      const slot = this.$scopedSlots['day-container']
-      return h('div', {
-        staticClass: 'q-calendar-daily__day-container'
-      }, [
-        this.__renderBodyIntervals(h),
-        ...this.__renderDays(h),
-        slot && slot(this.days)
-      ])
+    __renderDayContainer(h) {
+      const slot = this.$scopedSlots["day-container"];
+      return h(
+        "div",
+        {
+          staticClass: "q-calendar-daily__day-container"
+        },
+        [
+          this.__renderBodyIntervals(h),
+          ...this.__renderDays(h),
+          slot && slot(this.days)
+        ]
+      );
     },
 
-    __renderDays (h) {
-      if (this.days.length === 1 && this.columnCount && parseInt(this.columnCount, 10) > 0) {
+    __renderDays(h) {
+      if (
+        this.days.length === 1 &&
+        this.columnCount &&
+        parseInt(this.columnCount, 10) > 0
+      ) {
         return Array.apply(null, new Array(parseInt(this.columnCount, 10)))
           .map((_, i) => i + parseInt(this.columnIndexStart, 10))
-          .map((i) => this.__renderDay(h, this.days[0], 0, i))
+          .map(i => this.__renderDay(h, this.days[0], 0, i));
       } else {
-        return this.days.map((day, index) => this.__renderDay(h, day, index))
+        return this.days.map((day, index) => this.__renderDay(h, day, index));
       }
     },
 
-    __renderDay (h, day, dayIndex, idx) {
-      const slot = this.$scopedSlots['day-body']
-      const scope = this.getScopeForSlot(day, idx)
-      const width = this.computedWidth
+    __renderDay(h, day, dayIndex, idx) {
+      const slot = this.$scopedSlots["day-body"];
+      const scope = this.getScopeForSlot(day, idx);
+      const width = this.computedWidth;
 
-      let colors = new Map(), color, backgroundColor
-      let updateColors = this.useDefaultTheme
+      let colors = new Map(),
+        color,
+        backgroundColor;
+      let updateColors = this.useDefaultTheme;
       if (this.enableTheme === true) {
         if (day.past === true) {
-          color = 'colorBodyPast'
-          backgroundColor = 'backgroundBodyPast'
+          color = "colorBodyPast";
+          backgroundColor = "backgroundBodyPast";
         } else if (day.current === true) {
-          color = 'colorBodyCurrent'
-          backgroundColor = 'backgroundBodyCurrent'
+          color = "colorBodyCurrent";
+          backgroundColor = "backgroundBodyCurrent";
         } else if (day.future === true) {
-          color = 'colorBodyFuture'
-          backgroundColor = 'backgroundBodyFuture'
+          color = "colorBodyFuture";
+          backgroundColor = "backgroundBodyFuture";
         }
-        colors = this.getThemeColors([color, backgroundColor])
-        updateColors = this.setBothColors
+        colors = this.getThemeColors([color, backgroundColor]);
+        updateColors = this.setBothColors;
       }
 
-      return h('div', updateColors(colors.get(color), colors.get(backgroundColor), {
-        key: day.date + (idx !== void 0 ? `:${idx}` : ''),
-        staticClass: 'q-calendar-daily__day',
-        class: this.getRelativeClasses(day),
-        style: {
-          maxWidth: width + '%'
-        },
-        on: this.getDefaultMouseEventHandlers(':time', _event => {
-          return this.getScopeForSlot(this.getTimestampAtEvent(_event, day), idx)
-        })
-      }), [
-        ...this.__renderDayIntervals(h, dayIndex, idx),
-        slot && slot(scope)
-      ])
+      return h(
+        "div",
+        updateColors(colors.get(color), colors.get(backgroundColor), {
+          key: day.date + (idx !== void 0 ? `:${idx}` : ""),
+          staticClass: "q-calendar-daily__day",
+          class: this.getRelativeClasses(day),
+          style: {
+            maxWidth: width + "%"
+          },
+          on: this.getDefaultMouseEventHandlers(":time", _event => {
+            return this.getScopeForSlot(
+              this.getTimestampAtEvent(_event, day),
+              idx
+            );
+          })
+        }),
+        [...this.__renderDayIntervals(h, dayIndex, idx), slot && slot(scope)]
+      );
     },
 
-    __renderDayIntervals (h, index, idx) {
-      return this.intervals[index].map((interval) => this.__renderDayInterval(h, interval, idx))
+    __renderDayIntervals(h, index, idx) {
+      return this.intervals[index].map(interval =>
+        this.__renderDayInterval(h, interval, idx)
+      );
     },
 
-    __renderDayInterval (h, interval, idx) {
-      const height = convertToUnit(this.intervalHeight)
-      const styler = this.intervalStyle || this.intervalStyleDefault
-      const slot = this.$scopedSlots.interval
-      const scope = this.getScopeForSlot(interval, idx)
-      let dragOver
+    __renderDayInterval(h, interval, idx) {
+      const height = convertToUnit(this.intervalHeight);
+      const styler = this.intervalStyle || this.intervalStyleDefault;
+      const slot = this.$scopedSlots.interval;
+      const scope = this.getScopeForSlot(interval, idx);
+      let dragOver;
 
       const data = {
         key: interval.time,
-        staticClass: 'q-calendar-daily__day-interval',
+        staticClass: "q-calendar-daily__day-interval",
         class: {
-          'q-calendar-daily__day-interval--droppable': dragOver
+          "q-calendar-daily__day-interval--droppable": dragOver
         },
         style: {
           height,
           ...styler(interval)
         },
         domProps: {
-          ondragover: (e) => {
+          ondragover: e => {
             if (this.dragOverFunc !== void 0) {
-              dragOver = this.dragOverFunc(e, interval, 'interval')
+              dragOver = this.dragOverFunc(e, interval, "interval", idx);
             }
           },
-          ondrop: (e) => {
+          ondrop: e => {
             if (this.dropFunc !== void 0) {
-              this.dropFunc(e, interval, 'interval')
+              this.dropFunc(e, interval, "interval", idx);
             }
           }
         }
-      }
+      };
 
-      const children = slot ? slot(scope) : void 0
+      const children = slot ? slot(scope) : void 0;
 
-      return h('div', data, children)
+      return h("div", data, children);
     },
 
-    __renderBodyIntervals (h) {
-      let colors = new Map(), color, backgroundColor
-      let updateColors = this.useDefaultTheme
+    __renderBodyIntervals(h) {
+      let colors = new Map(),
+        color,
+        backgroundColor;
+      let updateColors = this.useDefaultTheme;
       if (this.enableTheme === true) {
-        color = 'colorIntervalBody'
-        backgroundColor = 'backgroundIntervalBody'
-        colors = this.getThemeColors([color, backgroundColor])
-        updateColors = this.setBothColors
+        color = "colorIntervalBody";
+        backgroundColor = "backgroundIntervalBody";
+        colors = this.getThemeColors([color, backgroundColor]);
+        updateColors = this.setBothColors;
       }
 
       const data = {
-        staticClass: 'q-calendar-daily__intervals-body',
-        on: this.getDefaultMouseEventHandlers(':interval', _event => {
-          return this.getTimestampAtEvent(_event, this.parsedStart)
+        staticClass: "q-calendar-daily__intervals-body",
+        on: this.getDefaultMouseEventHandlers(":interval", _event => {
+          return this.getTimestampAtEvent(_event, this.parsedStart);
         })
-      }
+      };
 
-      return h('div', updateColors(colors.get(color), colors.get(backgroundColor), data), this.__renderIntervalLabels(h))
+      return h(
+        "div",
+        updateColors(colors.get(color), colors.get(backgroundColor), data),
+        this.__renderIntervalLabels(h)
+      );
     },
 
-    __renderIntervalLabels (h) {
-      return this.intervals[0].map((interval) => this.__renderIntervalLabel(h, interval))
+    __renderIntervalLabels(h) {
+      return this.intervals[0].map(interval =>
+        this.__renderIntervalLabel(h, interval)
+      );
     },
 
-    __renderIntervalLabel (h, interval) {
-      const height = convertToUnit(this.intervalHeight)
-      const short = this.shortIntervalLabel
-      const shower = this.showIntervalLabel || this.showIntervalLabelDefault
-      const show = shower(interval)
-      const label = show ? this.intervalFormatter(interval, short) : void 0
+    __renderIntervalLabel(h, interval) {
+      const height = convertToUnit(this.intervalHeight);
+      const short = this.shortIntervalLabel;
+      const shower = this.showIntervalLabel || this.showIntervalLabelDefault;
+      const show = shower(interval);
+      const label = show ? this.intervalFormatter(interval, short) : void 0;
 
-      let colors = new Map(), color, backgroundColor
-      let updateColors = this.useDefaultTheme
+      let colors = new Map(),
+        color,
+        backgroundColor;
+      let updateColors = this.useDefaultTheme;
       if (this.enableTheme === true) {
-        color = 'colorIntervalText'
-        backgroundColor = 'backgroundIntervalText'
-        colors = this.getThemeColors([color, backgroundColor])
-        updateColors = this.setBothColors
+        color = "colorIntervalText";
+        backgroundColor = "backgroundIntervalText";
+        colors = this.getThemeColors([color, backgroundColor]);
+        updateColors = this.setBothColors;
       }
 
-      return h('div', {
-        key: interval.time,
-        staticClass: 'q-calendar-daily__interval',
-        style: {
-          height
-        }
-      }, [
-        h('div', updateColors(colors.get(color), colors.get(backgroundColor), {
-          staticClass: 'q-calendar-daily__interval-text'
-        }), label)
-      ])
+      return h(
+        "div",
+        {
+          key: interval.time,
+          staticClass: "q-calendar-daily__interval",
+          style: {
+            height
+          }
+        },
+        [
+          h(
+            "div",
+            updateColors(colors.get(color), colors.get(backgroundColor), {
+              staticClass: "q-calendar-daily__interval-text"
+            }),
+            label
+          )
+        ]
+      );
     }
   },
 
-  render (h) {
-    return h('div', {
-      staticClass: 'q-calendar-daily',
-      directives: [{
-        modifiers: { quiet: true },
-        name: 'resize',
-        value: this.onResize
-      }]
-    }, [
-      !this.hideHeader && this.__renderHead(h),
-      this.__renderBody(h)
-    ])
+  render(h) {
+    return h(
+      "div",
+      {
+        staticClass: "q-calendar-daily",
+        directives: [
+          {
+            modifiers: { quiet: true },
+            name: "resize",
+            value: this.onResize
+          }
+        ]
+      },
+      [!this.hideHeader && this.__renderHead(h), this.__renderBody(h)]
+    );
   }
-}
+};
